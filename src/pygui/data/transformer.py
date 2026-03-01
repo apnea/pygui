@@ -33,7 +33,8 @@ def resample(df: pd.DataFrame, freq: str, agg_func: str | dict | list = "mean") 
     Returns:
         Resampled DataFrame
     """
-    return df.resample(freq).agg(agg_func).dropna()
+    result = df.resample(freq).agg(agg_func).dropna()
+    return pd.DataFrame(result)
 
 
 def rolling_window(
@@ -56,8 +57,11 @@ def rolling_window(
     if columns is None:
         columns = df.select_dtypes(include=[np.number]).columns.tolist()
 
+    if not columns:
+        return df
+
     result = df[columns].rolling(window).agg(agg_func)
-    return result
+    return pd.DataFrame(result)
 
 
 def detect_outliers(
@@ -80,7 +84,14 @@ def detect_outliers(
     if columns is None:
         columns = df.select_dtypes(include=[np.number]).columns.tolist()
 
-    outliers = pd.DataFrame(False, index=df.index, columns=columns)
+    if not columns:
+        return pd.DataFrame(
+            False,
+            index=df.index,
+            columns=df.select_dtypes(include=[np.number]).columns.tolist(),  # type: ignore
+        )
+
+    outliers = pd.DataFrame(False, index=df.index, columns=columns)  # type: ignore
 
     for col in columns:
         if method == "zscore":
@@ -141,6 +152,9 @@ def difference(
     if columns is None:
         columns = df.select_dtypes(include=[np.number]).columns.tolist()
 
+    if not columns:
+        return df.copy()
+
     result = df.copy()
     for col in columns:
         result[col] = df[col].diff(periods=periods)
@@ -167,6 +181,9 @@ def create_lags(
     if isinstance(lags, int):
         lags = [lags]
 
+    if not columns:
+        return df.copy()
+
     result = df.copy()
     for col in columns:
         for lag in lags:
@@ -190,4 +207,5 @@ def custom_aggregate(
     Returns:
         Aggregated DataFrame
     """
-    return df.groupby(groupby).agg(agg_dict)
+    result = df.groupby(groupby).agg(agg_dict)
+    return pd.DataFrame(result)

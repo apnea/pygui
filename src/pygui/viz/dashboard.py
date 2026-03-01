@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import hvplot.pandas
+import hvplot.pandas  # type: ignore
 import pandas as pd
 import panel as pn
 
@@ -179,7 +179,8 @@ class TimeSeriesDashboard:
             self._update_plots()
             self._update_stats()
         except Exception as e:
-            pn.state.notifications.error(f"Error loading data: {str(e)}")
+            if pn.state.notifications:
+                pn.state.notifications.error(f"Error loading data: {str(e)}")  # type: ignore
 
     def _apply_filter(self, event):
         """Apply time range filter."""
@@ -187,11 +188,15 @@ class TimeSeriesDashboard:
             return
 
         try:
-            self.df = filter_by_time_range(self.df, self.start_time.value, self.end_time.value)
-            self._update_plots()
-            self._update_stats()
+            start_val = self.start_time.value
+            end_val = self.end_time.value
+            if start_val is not None and end_val is not None:
+                self.df = filter_by_time_range(self.df, str(start_val), str(end_val))
+                self._update_plots()
+                self._update_stats()
         except Exception as e:
-            pn.state.notifications.error(f"Error applying filter: {str(e)}")
+            if pn.state.notifications:
+                pn.state.notifications.error(f"Error applying filter: {str(e)}")  # type: ignore
 
     def _apply_resample(self, event):
         """Apply resampling."""
@@ -199,11 +204,15 @@ class TimeSeriesDashboard:
             return
 
         try:
-            self.df = resample(self.df, self.resample_freq.value, self.resample_agg.value)
-            self._update_plots()
-            self._update_stats()
+            freq_val = self.resample_freq.value
+            agg_val = self.resample_agg.value
+            if freq_val is not None and agg_val is not None:
+                self.df = resample(self.df, freq_val, agg_val)
+                self._update_plots()
+                self._update_stats()
         except Exception as e:
-            pn.state.notifications.error(f"Error applying resample: {str(e)}")
+            if pn.state.notifications:
+                pn.state.notifications.error(f"Error applying resample: {str(e)}")  # type: ignore
 
     def _apply_rolling(self, event):
         """Apply rolling window."""
@@ -211,13 +220,15 @@ class TimeSeriesDashboard:
             return
 
         try:
-            self.df = rolling_window(
-                self.df, window=self.rolling_window_size.value, agg_func=self.rolling_agg.value
-            )
-            self._update_plots()
-            self._update_stats()
+            window_val = self.rolling_window_size.value
+            agg_val = self.rolling_agg.value
+            if window_val is not None and agg_val is not None:
+                self.df = rolling_window(self.df, window=window_val, agg_func=agg_val)  # type: ignore
+                self._update_plots()
+                self._update_stats()
         except Exception as e:
-            pn.state.notifications.error(f"Error applying rolling: {str(e)}")
+            if pn.state.notifications:
+                pn.state.notifications.error(f"Error applying rolling: {str(e)}")  # type: ignore
 
     def _apply_outlier_detection(self, event):
         """Detect and mark outliers."""
@@ -225,25 +236,32 @@ class TimeSeriesDashboard:
             return
 
         try:
-            outliers = detect_outliers(
-                self.df, method=self.outlier_method.value, threshold=self.outlier_threshold.value
-            )
+            method_val = self.outlier_method.value
+            threshold_val = self.outlier_threshold.value
+            if method_val is not None and threshold_val is not None:
+                outliers = detect_outliers(
+                    self.df,
+                    method=method_val,
+                    threshold=float(threshold_val),  # type: ignore
+                )
 
-            outlier_counts = outliers.sum()
-            total_rows = len(outliers)
+                outlier_counts = outliers.sum()
+                total_rows = len(outliers)
 
-            summary = "### Outlier Detection Results\n\n"
-            for col, count in outlier_counts.items():
-                if count > 0:
-                    percentage = (count / total_rows) * 100
-                    summary += f"- **{col}**: {count} outliers ({percentage:.2f}%)\n"
-                else:
-                    summary += f"- **{col}**: No outliers detected\n"
+                summary = "### Outlier Detection Results\n\n"
+                for col, count in outlier_counts.items():
+                    if count > 0:
+                        percentage = (count / total_rows) * 100
+                        summary += f"- **{col}**: {count} outliers ({percentage:.2f}%)\n"
+                    else:
+                        summary += f"- **{col}**: No outliers detected\n"
 
-            self.outlier_display.object = summary
-            pn.state.notifications.success("Outlier detection complete")
+                self.outlier_display.object = summary
+                if pn.state.notifications:
+                    pn.state.notifications.success("Outlier detection complete")  # type: ignore
         except Exception as e:
-            pn.state.notifications.error(f"Error detecting outliers: {str(e)}")
+            if pn.state.notifications:
+                pn.state.notifications.error(f"Error detecting outliers: {str(e)}")  # type: ignore
 
     def _apply_impute(self, event):
         """Apply missing value imputation."""
@@ -251,12 +269,16 @@ class TimeSeriesDashboard:
             return
 
         try:
-            self.df = impute_missing(self.df, method=self.impute_method.value)
-            self._update_plots()
-            self._update_stats()
-            pn.state.notifications.success("Missing values imputed")
+            method_val = self.impute_method.value
+            if method_val is not None:
+                self.df = impute_missing(self.df, method=method_val)
+                self._update_plots()
+                self._update_stats()
+                if pn.state.notifications:
+                    pn.state.notifications.success("Missing values imputed")  # type: ignore
         except Exception as e:
-            pn.state.notifications.error(f"Error imputing values: {str(e)}")
+            if pn.state.notifications:
+                pn.state.notifications.error(f"Error imputing values: {str(e)}")  # type: ignore
 
     def _reset_data(self, event):
         """Reset data to original state."""
@@ -266,26 +288,35 @@ class TimeSeriesDashboard:
         self.df = self.original_df.copy()
         self._update_plots()
         self._update_stats()
-        pn.state.notifications.success("Data reset to original")
+        if pn.state.notifications:
+            pn.state.notifications.success("Data reset to original")  # type: ignore
 
     def _update_plots(self):
         """Update time series and histogram plots."""
-        if self.df is None or not self.plot_columns.value:
+        if self.df is None or not self.plot_columns.value:  # type: ignore
             return
 
-        columns = self.plot_columns.value[:3]
+        plot_cols_val = self.plot_columns.value
+        if not plot_cols_val:  # type: ignore
+            return
 
+        columns = plot_cols_val[:3] if plot_cols_val else []  # type: ignore
+
+        if not columns:
+            return
+
+        df_to_plot = self.df[columns].iloc[-10000:] if len(self.df) > 10000 else self.df[columns]
         self.time_series_plot.object = hvplot.plot(
-            self.df[columns].iloc[-10000:] if len(self.df) > 10000 else self.df[columns],
+            df_to_plot,
             legend="top_left",
             responsive=True,
             tools=["pan", "zoom", "box_zoom", "reset"],
-        )
+        )  # type: ignore
 
         for col in columns[:1]:
             self.histogram_plot.object = hvplot.plot(
                 self.df[col].dropna(),
-                kind="hist",
+                kind="hist",  # type: ignore
                 bins=50,
                 title=f"Distribution: {col}",
                 responsive=True,
@@ -300,11 +331,13 @@ class TimeSeriesDashboard:
             self.stats_display.object = basic_stats(self.df)
             self.correlation_display.object = correlation_matrix(self.df)
         except Exception as e:
-            pn.state.notifications.error(f"Error computing stats: {str(e)}")
+            if pn.state.notifications:
+                pn.state.notifications.error(f"Error computing stats: {str(e)}")  # type: ignore
 
     def _export_plot(self, event):
         """Export current plot as image."""
-        pn.state.notifications.info("Plot export - use browser save or screenshot")
+        if pn.state.notifications:
+            pn.state.notifications.info("Plot export - use browser save or screenshot")  # type: ignore
 
     def _export_data(self, event):
         """Export current data as Parquet."""
@@ -314,7 +347,8 @@ class TimeSeriesDashboard:
         export_path = Path("data/exported_data.parquet")
         export_path.parent.mkdir(parents=True, exist_ok=True)
         self.df.to_parquet(export_path)
-        pn.state.notifications.success(f"Data exported to {export_path}")
+        if pn.state.notifications:
+            pn.state.notifications.success(f"Data exported to {export_path}")  # type: ignore
 
     def serve(self):
         """Serve the dashboard."""

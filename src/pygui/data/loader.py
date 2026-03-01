@@ -89,7 +89,7 @@ def get_data_info(df: pd.DataFrame) -> dict:
         info["time_range"] = {
             "start": df.index.min(),
             "end": df.index.max(),
-            "duration": df.index.max() - df.index.min(),
+            "duration": pd.to_timedelta(df.index.max() - df.index.min()),  # type: ignore
             "frequency": df.index.freq,
         }
 

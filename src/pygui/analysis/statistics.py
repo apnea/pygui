@@ -43,7 +43,7 @@ def time_based_stats(df: pd.DataFrame, freq: str = "H") -> pd.DataFrame:
 
     stats_by_time.columns = [f"{col}_{stat}" for col, stat in stats_by_time.columns]
 
-    return stats_by_time
+    return pd.DataFrame(stats_by_time)
 
 
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
@@ -56,7 +56,8 @@ def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
         Correlation matrix
     """
     numeric_cols = df.select_dtypes(include=[np.number]).columns
-    return df[numeric_cols].corr()
+    corr = df[numeric_cols].corr()  # type: ignore
+    return pd.DataFrame(corr)
 
 
 def outlier_stats(df: pd.DataFrame, columns: list[str] | None = None) -> dict[str, dict]:

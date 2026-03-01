@@ -8,7 +8,7 @@ def is_cuda_available() -> bool:
         True if CUDA is available, False otherwise
     """
     try:
-        import cupy as cp
+        import cupy as cp  # type: ignore
 
         cp.cuda.Device(0).use()
         return True
@@ -23,7 +23,7 @@ def get_cuda_version() -> str | None:
         CUDA version string or None if not available
     """
     try:
-        import cupy as cp
+        import cupy as cp  # type: ignore
 
         return cp.cuda.runtime.runtimeGetVersion()
     except Exception:
@@ -40,14 +40,14 @@ def get_gpu_info() -> dict:
         return {}
 
     try:
-        import cupy as cp
+        import cupy as cp  # type: ignore
 
         device = cp.cuda.Device()
         return {
             "name": device.name,
             "compute_capability": device.compute_capability,
-            "memory_total": device.mem_info[1],
             "memory_free": device.mem_info[0],
+            "memory_total": device.mem_info[1],
         }
     except Exception:
         return {}
