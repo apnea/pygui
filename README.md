@@ -57,13 +57,13 @@ uv add --extra gpu cudf-cu12        # For CUDA 12.x
 If you have HDF5 files, convert them to Parquet format first:
 
 ```bash
-python scripts/convert_hdf5_to_parquet.py your_file.h5 --output your_file.parquet
+uv run python scripts/convert_hdf5_to_parquet.py your_file.h5 --output your_file.parquet
 ```
 
 For HDF5 files with multiple tables, specify the table key:
 
 ```bash
-python scripts/convert_hdf5_to_parquet.py your_file.h5 --table-key table_name --output your_file.parquet
+uv run python scripts/convert_hdf5_to_parquet.py your_file.h5 --table-key table_name --output your_file.parquet
 ```
 
 ### Launching the Dashboard
