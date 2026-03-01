@@ -12,6 +12,7 @@ dependencies = [
     "holoviews>=1.18.0",
     "datashader>=0.16.0",
     "scipy>=1.10.0",
+    "tables>=3.10.1",
 ]
 
 [project.optional-dependencies]
