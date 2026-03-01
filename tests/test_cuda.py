@@ -1,6 +1,5 @@
 """Tests for CUDA utilities."""
 
-
 from pygui.utils.cuda import (
     get_cuda_version,
     get_device,

@@ -1,6 +1,5 @@
 """Descriptive statistics for time series data."""
 
-
 import numpy as np
 import pandas as pd
 

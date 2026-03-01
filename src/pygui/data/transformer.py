@@ -22,9 +22,7 @@ def filter_by_time_range(df: pd.DataFrame, start: str, end: str) -> pd.DataFrame
     return df.loc[start_time:end_time]
 
 
-def resample(
-    df: pd.DataFrame, freq: str, agg_func: str | dict | list = "mean"
-) -> pd.DataFrame:
+def resample(df: pd.DataFrame, freq: str, agg_func: str | dict | list = "mean") -> pd.DataFrame:
     """Resample DataFrame to different frequency.
 
     Args:

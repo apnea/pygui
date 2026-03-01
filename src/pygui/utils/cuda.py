@@ -1,7 +1,6 @@
 """CUDA detection and GPU utilities."""
 
 
-
 def is_cuda_available() -> bool:
     """Check if CUDA is available.
 

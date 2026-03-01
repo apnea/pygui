@@ -1,7 +1,6 @@
 """Main entry point for pygui application."""
 
 
-
 def main():
     """Launch the pygui dashboard."""
     from pygui.viz.dashboard import launch_dashboard
